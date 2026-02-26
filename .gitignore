@@ -1,11 +1,9 @@
-# --- Secrets (never commit) ---
 .env
 .env.local
 .env.*.local
 *.pem
 *.key
 
-# --- Python ---
 venv/
 .venv/
 env/
@@ -29,7 +27,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# --- App / runtime ---
 data/
 *.diff
 *.log
@@ -39,7 +36,6 @@ htmlcov/
 .tox/
 .nox/
 
-# --- OS ---
 .DS_Store
 .DS_Store?
 ._*
@@ -48,7 +44,6 @@ htmlcov/
 ehthumbs.db
 Thumbs.db
 
-# --- IDEs / editors ---
 .idea/
 .vscode/
 *.swp
@@ -57,7 +52,3 @@ Thumbs.db
 .project
 .pydevproject
 .settings/
-
-# --- Optional (uncomment if you use them) ---
-# node_modules/
-# .cursor/
