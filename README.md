@@ -4,65 +4,88 @@ A simple AI powered code assistant that understands uploaded project files and p
 
 Built using Python, FastAPI, LangChain, and the OpenAI API.
 
+---
+
 ## Features
 
-- Upload code files through a web interface
-- Semantic search across uploaded files
-- Context aware explanations
-- Code improvement suggestions
-- Patch generation
+- Upload code files through a web interface  
+- Semantic search across uploaded files  
+- Context aware explanations  
+- Code improvement suggestions  
+- Patch generation  
+
+---
 
 ## Tech Stack
 
-Python  
-FastAPI  
-LangChain  
-OpenAI API  
+- Python  
+- FastAPI  
+- LangChain  
+- OpenAI API  
+
+---
 
 ## Setup
 
-Clone the repository:
+### 1. Clone the repository
 
+```bash
 git clone https://github.com/Chinmay1545/AI-Code-Assistant.git
-
 cd AI-Code-Assistant
+```
 
-Create a virtual environment:
+### 2. Create a virtual environment
 
+```bash
 python -m venv venv
+```
 
-Activate environment:
+### 3. Activate the environment
 
-Mac/Linux:
+Mac or Linux:
+
+```bash
 source venv/bin/activate
+```
 
 Windows:
+
+```bash
 venv\Scripts\activate
+```
 
-Install dependencies:
+### 4. Install dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
-Create a .env file:
+### 5. Create a .env file
 
+Create a file named `.env` in the root directory and add:
+
+```
 OPENAI_API_KEY=your_api_key_here
+```
 
-Run the server:
+### 6. Run the server
 
+```bash
 uvicorn main:app --reload
+```
 
-Open in browser:
+### 7. Open in browser
 
+```
 http://localhost:8000
+```
+
+---
 
 ## Project Structure
 
-main.py : FastAPI app
-
-vector_store.py : semantic search logic
-
-llm_client.py : OpenAI API calls
-
-templates/ : frontend HTML
-
-static/ : CSS and JavaScript
+- `main.py` — FastAPI application  
+- `vector_store.py` — Semantic search and indexing logic  
+- `llm_client.py` — OpenAI API interaction  
+- `templates/` — Frontend HTML  
+- `static/` — CSS and JavaScript  
