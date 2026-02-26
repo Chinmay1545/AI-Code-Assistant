@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Code Assistant</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>AI Code Assistant</h1>
+      <p class="tagline">Context-aware code recommendations with semantic search</p>
+    </header>
+
+    <section class="upload-section">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" multiple accept=".py,.js,.ts,.java,.c,.cpp,.go,.rs,.md,.txt" hidden />
+        <div class="upload-content">
+          <span class="upload-icon">📁</span>
+          <p class="upload-text">Drag and drop files here, or <button type="button" class="link-btn" id="browseBtn">browse</button></p>
+          <p class="upload-hint">Allowed: py, js, ts, java, c, cpp, go, rs, md, txt · Max 2 MB per file</p>
+        </div>
+      </div>
+      <div class="upload-status" id="uploadStatus"></div>
+    </section>
+
+    <section class="controls">
+      <div class="control-group control-group-wide">
+        <label for="instruction">Instruction</label>
+        <textarea id="instruction" rows="3" placeholder="Ask anything about the code or request changes, e.g. Explain the main function, suggest improvements, or generate a patch…"></textarea>
+      </div>
+      <button type="button" class="btn btn-primary" id="runBtn" disabled>Run</button>
+    </section>
+
+    <main class="panels">
+      <aside class="panel panel-left">
+        <div class="panel-header">
+          <h2>Project files</h2>
+        </div>
+        <ul class="file-list" id="fileList"></ul>
+        <div class="panel-header preview-header">
+          <h2>Preview</h2>
+        </div>
+        <div class="preview-wrap">
+          <pre class="preview-content" id="previewContent"><span class="muted">Select a file or upload files to see preview.</span></pre>
+        </div>
+      </aside>
+      <aside class="panel panel-right">
+        <div class="panel-header panel-header-right">
+          <h2>Assistant</h2>
+          <div class="output-actions" id="outputActions" style="display: none;">
+            <button type="button" class="btn btn-secondary btn-sm" id="downloadPatchBtn">Download Patch</button>
+          </div>
+        </div>
+        <div class="output-wrap">
+          <div class="loading" id="loading" style="display: none;">
+            <span class="spinner"></span>
+            <span>Thinking…</span>
+          </div>
+          <div class="output-content markdown-body" id="outputContent"><span class="muted">Your response will appear here.</span></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
