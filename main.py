@@ -24,7 +24,7 @@ from vector_store import (
     build_vector_store_from_paths,
     retrieve_context,
 )
-from llm_client import run_llm
+from llm_client import MAX_FULL_CONTEXT_CHARS, run_llm
 
 # --- Config (model is in llm_client.py) ---
 INDEX_DIR = Path(__file__).resolve().parent / "data" / "faiss_index"
@@ -188,8 +188,11 @@ async def run(body: RunRequest):
         )
 
     try:
-        docs = retrieve_context(_current_vector_store, body.instruction, top_k=8)
-        result_text = run_llm(body.instruction, docs)
+        if sum(len(c) for c in _current_file_contents.values()) <= MAX_FULL_CONTEXT_CHARS:
+            docs = None  # Small project: send every file whole instead of retrieved excerpts
+        else:
+            docs = retrieve_context(_current_vector_store, body.instruction, top_k=8)
+        result_text = run_llm(body.instruction, _current_file_contents, docs)
         return RunResponse(result_text=result_text, is_diff=False)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
