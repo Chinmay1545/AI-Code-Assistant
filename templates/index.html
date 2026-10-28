@@ -4,64 +4,90 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Code Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 </head>
 <body>
   <div class="app">
-    <header class="header">
-      <h1>AI Code Assistant</h1>
-      <p class="tagline">Context-aware code recommendations with semantic search</p>
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5 3 12l5 7M16 5l5 7-5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+        </svg>
+        <h1>AI Code Assistant</h1>
+      </div>
+      <p class="upload-status" id="uploadStatus" role="status"></p>
+      <input type="file" id="fileInput" multiple accept=".py,.js,.ts,.java,.c,.cpp,.go,.rs,.md,.txt" hidden />
+      <button type="button" class="btn btn-secondary" id="uploadBtn">Upload files</button>
     </header>
 
-    <section class="upload-section">
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" id="fileInput" multiple accept=".py,.js,.ts,.java,.c,.cpp,.go,.rs,.md,.txt" hidden />
-        <div class="upload-content">
-          <span class="upload-icon">📁</span>
-          <p class="upload-text">Drag and drop files here, or <button type="button" class="link-btn" id="browseBtn">browse</button></p>
-          <p class="upload-hint">Allowed: py, js, ts, java, c, cpp, go, rs, md, txt · Max 2 MB per file</p>
-        </div>
-      </div>
-      <div class="upload-status" id="uploadStatus"></div>
-    </section>
-
-    <section class="controls">
-      <div class="control-group control-group-wide">
-        <label for="instruction">Instruction</label>
-        <textarea id="instruction" rows="3" placeholder="Ask anything about the code or request changes, e.g. Explain the main function, suggest improvements, or generate a patch…"></textarea>
-      </div>
-      <button type="button" class="btn btn-primary" id="runBtn" disabled>Run</button>
-    </section>
-
     <main class="panels">
-      <aside class="panel panel-left">
+      <section class="panel panel-files" aria-labelledby="filesHeading">
         <div class="panel-header">
-          <h2>Project files</h2>
+          <h2 id="filesHeading">Files</h2>
+          <span class="panel-meta num" id="filesMeta"></span>
         </div>
-        <ul class="file-list" id="fileList"></ul>
-        <div class="panel-header preview-header">
-          <h2>Preview</h2>
+
+        <div class="upload-zone" id="uploadZone">
+          <p class="upload-text">Drop source files here</p>
+          <button type="button" class="btn btn-secondary" id="browseBtn" aria-describedby="uploadHint">Choose files</button>
+          <p class="upload-hint" id="uploadHint">py, js, ts, java, c, cpp, go, rs, md or txt · up to 2 MB each</p>
         </div>
-        <div class="preview-wrap">
-          <pre class="preview-content" id="previewContent"><span class="muted">Select a file or upload files to see preview.</span></pre>
-        </div>
-      </aside>
-      <aside class="panel panel-right">
-        <div class="panel-header panel-header-right">
-          <h2>Assistant</h2>
-          <div class="output-actions" id="outputActions" style="display: none;">
-            <button type="button" class="btn btn-secondary btn-sm" id="downloadPatchBtn">Download Patch</button>
+
+        <ul class="file-list" id="fileList" hidden></ul>
+        <div class="preview" id="preview" hidden>
+          <div class="preview-header">
+            <span class="preview-name" id="previewName"></span>
+            <span class="panel-meta num" id="previewMeta"></span>
+          </div>
+          <div class="preview-wrap" id="previewWrap">
+            <pre class="preview-content" id="previewContent"></pre>
           </div>
         </div>
-        <div class="output-wrap">
-          <div class="loading" id="loading" style="display: none;">
-            <span class="spinner"></span>
-            <span>Thinking…</span>
+      </section>
+
+      <section class="panel panel-assistant" aria-labelledby="assistantHeading">
+        <div class="panel-header">
+          <h2 id="assistantHeading">Explanation</h2>
+          <div class="output-actions" id="outputActions" hidden>
+            <button type="button" class="btn btn-secondary btn-sm" id="downloadPatchBtn">Download patch</button>
           </div>
-          <div class="output-content markdown-body" id="outputContent"><span class="muted">Your response will appear here.</span></div>
         </div>
-      </aside>
+
+        <div class="output-wrap" id="outputWrap">
+          <div class="output-empty" id="outputEmpty">
+            <p>Ask one question about the uploaded code and get one complete explanation. Click any file and line reference in it to open that code.</p>
+            <div class="suggestions">
+              <button type="button" class="suggestion">Explain what this project does</button>
+              <button type="button" class="suggestion">Walk me through how a request flows</button>
+              <button type="button" class="suggestion">Explain the most complex function</button>
+            </div>
+          </div>
+          <div class="asked" id="asked" hidden>
+            <span class="asked-label">Question</span>
+            <p class="asked-text" id="askedText"></p>
+          </div>
+          <div class="loading" id="loading" hidden>
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Reading the code…</span>
+          </div>
+          <div class="output-content markdown-body" id="outputContent" aria-live="polite"></div>
+        </div>
+
+        <form class="composer" id="composer">
+          <label for="instruction">Your question</label>
+          <textarea id="instruction" rows="3" aria-describedby="composerNote" placeholder="e.g. How does the upload endpoint validate files?"></textarea>
+          <div class="composer-row">
+            <p class="composer-note" id="composerNote">One question, one complete answer. A new question replaces the current answer.</p>
+            <span class="composer-hint" id="composerHint"></span>
+            <button type="submit" class="btn btn-primary" id="runBtn" disabled>Explain</button>
+          </div>
+        </form>
+      </section>
     </main>
   </div>
   <script src="/static/app.js"></script>
