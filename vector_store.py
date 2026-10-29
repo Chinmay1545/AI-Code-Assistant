@@ -3,9 +3,8 @@ LangChain-based document loading, chunking, embeddings, and FAISS vector store.
 Files are loaded from temp paths, indexed, then temp files are not retained (caller deletes).
 """
 import os
-import tempfile
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from langchain_community.document_loaders import TextLoader
 from langchain_openai import OpenAIEmbeddings
@@ -86,14 +85,8 @@ def split_documents(documents: List[Document]) -> List[Document]:
     return chunks
 
 
-def build_vector_store_from_paths(
-    file_paths: List[str],
-    persist_dir: Optional[str] = None,
-) -> FAISS:
-    """
-    Load documents from paths, split into chunks, embed with OpenAI, store in FAISS.
-    If persist_dir is given, FAISS index is saved there for reuse.
-    """
+def build_vector_store_from_paths(file_paths: List[str]) -> FAISS:
+    """Load documents from paths, split into chunks, embed with OpenAI, store in an in-memory FAISS index."""
     if not file_paths:
         raise ValueError("No file paths provided")
 
@@ -109,26 +102,10 @@ def build_vector_store_from_paths(
     vectors = embeddings.embed_documents(
         [f"File: {c.metadata['source_file']}\n\n{c.page_content}" for c in chunks]
     )
-    vector_store = FAISS.from_embeddings(
+    return FAISS.from_embeddings(
         text_embeddings=list(zip([c.page_content for c in chunks], vectors)),
         embedding=embeddings,
         metadatas=[c.metadata for c in chunks],
-    )
-
-    if persist_dir:
-        os.makedirs(persist_dir, exist_ok=True)
-        vector_store.save_local(persist_dir)
-
-    return vector_store
-
-
-def load_vector_store_from_disk(persist_dir: str) -> FAISS:
-    """Load an existing FAISS index from disk."""
-    embeddings = _get_embeddings()
-    return FAISS.load_local(
-        persist_dir,
-        embeddings,
-        allow_dangerous_deserialization=True,
     )
 
 

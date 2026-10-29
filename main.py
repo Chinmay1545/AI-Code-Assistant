@@ -6,14 +6,13 @@ import logging
 import os
 import shutil
 import tempfile
-import traceback
 from pathlib import Path
 from typing import List
 
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -27,7 +26,6 @@ from vector_store import (
 from llm_client import MAX_FULL_CONTEXT_CHARS, run_llm
 
 # --- Config (model is in llm_client.py) ---
-INDEX_DIR = Path(__file__).resolve().parent / "data" / "faiss_index"
 ALLOWED_EXTENSIONS_STR = ", ".join(sorted(ALLOWED_EXTENSIONS))
 
 app = FastAPI(title="AI Code Assistant")
@@ -75,7 +73,6 @@ async def preview(name: str = ""):
     """Return in-memory file content for preview. Query param ?name=<filename>."""
     try:
         from urllib.parse import unquote
-        global _current_file_names, _current_file_contents
         if not name or not name.strip():
             raise HTTPException(status_code=400, detail="Missing name parameter.")
         # Use only the basename to avoid path traversal
@@ -132,11 +129,7 @@ async def upload(files: List[UploadFile] = File(...)):
                 detail="No valid files to process. Allowed extensions: " + ALLOWED_EXTENSIONS_STR,
             )
 
-        INDEX_DIR.mkdir(parents=True, exist_ok=True)
-        _current_vector_store = build_vector_store_from_paths(
-            temp_paths,
-            persist_dir=str(INDEX_DIR),
-        )
+        _current_vector_store = build_vector_store_from_paths(temp_paths)
         _current_file_names = [Path(p).name for p in temp_paths]
         _current_file_contents = {}
         for p in temp_paths:
@@ -176,8 +169,6 @@ async def run(body: RunRequest):
     """
     Run the assistant: retrieve context from the vector store, call LLM, return result.
     """
-    global _current_vector_store
-
     if not body.instruction.strip():
         raise HTTPException(status_code=400, detail="Instruction cannot be empty.")
 
